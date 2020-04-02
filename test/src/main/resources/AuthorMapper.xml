@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.test.AuthorMapper">
+    <!-- 此处需要注意的是，由于我们数据库定义的id存储类型为intbig,但是我们的Entity中Id是Long -->
+    <!-- 前面的两种方式插入没问题，此处报了数据库类型异常 -->
+    <!-- 所以数据库的ID类型改为了Varchar -->
+    <resultMap id="authorMap" type="com.test.Author">
+        <id column="id" property="id" jdbcType="VARCHAR" />
+        <result column="real_name" property="realName" jdbcType="VARCHAR" />
+        <result column="nick_name" property="nickName" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <sql id="base_column">
+        id,real_name,nick_name
+    </sql>
+
+    <insert id="insertAuthor" parameterType="com.test.Author">
+        INSERT INTO
+        t_author(
+        <include refid="base_column" />
+        )
+        VALUE
+        (#{id},#{realName},#{nickName})
+    </insert>
+
+    <update id="updateAuthor" parameterType="com.test.Author">
+        UPDATE t_author
+        <set>
+            <if test="realName != null">
+                real_name = #{realName},
+            </if>
+            <if test="nickName != null">
+                nick_name = #{nickName},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <select id="queryById" parameterType="Long" resultMap="authorMap">
+        SELECT id,
+        <include refid="base_column"></include>
+        FROM t_author
+        WHERE id = #{id}
+    </select>
+
+</mapper>
